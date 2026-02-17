@@ -56,6 +56,7 @@ body{
 .screen{
   min-height:100vh;
   display:flex;
+  flex-direction:column;
   justify-content:center;
   align-items:center;
   padding:20px;
@@ -84,7 +85,7 @@ body{
 }
 .hero-card.hide{ opacity:0; transform: scale(0.85); pointer-events:none; }
 
-/* Animated Title (Great Vibes) */
+/* Animated Title */
 .title-animate{
   font-family:'Great Vibes', cursive;
   font-size:4rem;
@@ -131,7 +132,7 @@ body{
 }
 .music-btn:hover{ transform: scale(1.05); box-shadow:0 10px 25px rgba(0,0,0,0.3); }
 
-/* ===== Realistic Cake ===== */
+/* Cake */
 .cake-wrap{
   margin:26px 0 10px; display:flex; justify-content:center; cursor:pointer;
   opacity:0; transform: translateY(20px);
@@ -141,7 +142,7 @@ body{
 .cake-wrap.pulse{ animation: cakePulse 0.5s ease; }
 @keyframes cakePulse{ 0%{transform:scale(1);} 50%{transform:scale(1.05);} 100%{transform:scale(1);} }
 
-/* Cake locked/ready states */
+/* Cake locked/ready */
 .cake-wrap.locked{ pointer-events:none; opacity:0.6; filter: grayscale(0.3); }
 .cake-wrap.ready{
   pointer-events:auto; opacity:1; filter:none;
@@ -186,9 +187,23 @@ body{
 }
 .flame.off{ opacity:0; animation:none; }
 
-/* Subtitle */
+/* Subtitle + wish */
 .subtitle{ margin-top:10px; color:#3b0a3b; opacity:0; animation: subIn 1.6s ease forwards; animation-delay: 5.4s; }
 @keyframes subIn{ to{ opacity:1; } }
+
+.wish-hint{
+  margin-top:8px;
+  font-size:0.95rem;
+  color:#7a1fa2;
+  opacity:0;
+  animation: wishFadeIn 2s ease forwards;
+  animation-delay: 4.8s;
+}
+@keyframes wishFadeIn{
+  from{ opacity:0; transform: translateY(6px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+.wish-hint.hide{ opacity:0; transition: opacity 0.8s ease; }
 
 /* Center Greeting */
 .center-greet{
@@ -207,7 +222,7 @@ body{
 .center-greet.show .btn{ opacity:1; transform: translateY(0); }
 
 /* Screen 2 */
-#screen2{ display:none; flex-direction:column; opacity:0; transform: translateY(20px); }
+#screen2{ display:none; opacity:0; transform: translateY(20px); }
 #screen2.show{ opacity:1; transform: translateY(0); }
 
 /* Special message title */
@@ -223,7 +238,7 @@ body{
 
 /* Book */
 .book{
-  width:90%; max-width:520px; height:260px; margin:20px auto;
+  width:90%; max-width:520px; height:260px; margin:20px auto 10px;
   background:#fff; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.3);
   overflow:hidden; position:relative; transform: scaleY(0); transform-origin: top; transition: transform 1s ease;
 }
@@ -246,19 +261,59 @@ body{
 .polaroid{
   background:white; padding:10px 10px 30px; box-shadow:0 8px 20px rgba(0,0,0,0.3); transform:rotate(-2deg);
 }
-.polaroid img{ width:100%; height:160px; object-fit:cover; display:block; }
+.polaroid img, .polaroid video{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  display:block;
+  border-radius:2px;
+}
 
-/* Controls */
+/* Controls BELOW diary */
 .controls{
-  margin-top:10px; display:flex; justify-content:center; gap:15px;
-  opacity:0; pointer-events:none; transition: opacity 1s ease;
+  margin:10px 0 10px;
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity 1s ease;
 }
 .controls.show{ opacity:1; pointer-events:auto; }
+
+/* Special Message Card */
+.message-card{
+  max-width:520px;
+  margin:10px auto 0;
+  padding:24px 26px;
+  border-radius:22px;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  text-align:center;
+  opacity:0;
+  transform: translateY(20px) scale(0.95);
+  transition: all 1.2s ease;
+}
+.message-card.show{
+  opacity:1;
+  transform: translateY(0) scale(1);
+}
+.message-card h2{
+  font-family:'Great Vibes', cursive;
+  font-size:2.4rem;
+  color:#ff4d8d;
+  margin-bottom:10px;
+}
+.message-card p{
+  color:#5b0f5b;
+  font-size:1rem;
+  line-height:1.6;
+}
 </style>
 </head>
 <body>
 
-<!-- 🎵 Background Music -->
 <audio id="bgMusic" src="perfect.mp3" autoplay loop muted></audio>
 <button id="musicBtn" class="music-btn">🔊 Music On</button>
 
@@ -268,7 +323,6 @@ body{
 <div class="screen" id="screen1">
   <div class="hero-card" id="heroCard">
     <h1 class="title-animate" id="titleText"></h1>
-
     <div class="photo-frame"><img src="naziya.jpeg" alt="Naziya"></div>
 
     <div class="cake-wrap locked" id="cakeWrap" onclick="blowCandle()">
@@ -279,7 +333,8 @@ body{
       </div>
     </div>
 
-    <div class="subtitle">Tap the candle to blow it out 🕯️</div>
+    <div class="subtitle">Tap the cake to blow it out 🕯️</div>
+    <div class="wish-hint" id="wishHint">✨ Make a wish… 🎂</div>
   </div>
 
   <div class="center-greet" id="centerGreet">
@@ -317,11 +372,34 @@ body{
       <div class="page-left">Photo 4</div>
       <div class="page-right"><div class="polaroid"><img src="photo4.jpeg"></div></div>
     </div>
+    <div class="page" id="page5">
+      <div class="page-left">Photo 5</div>
+      <div class="page-right"><div class="polaroid"><img src="photo5.jpeg"></div></div>
+    </div>
+    <div class="page" id="page6">
+      <div class="page-left">Your Memory 🎥</div>
+      <div class="page-right">
+        <div class="polaroid">
+          <video src="VID_20260208_162220.mp4" controls loop playsinline></video>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- Buttons directly below diary -->
   <div class="controls" id="controls">
     <button class="btn" onclick="prevPage()">⬅ Prev</button>
     <button class="btn" onclick="nextPage()">Next ➡</button>
+  </div>
+
+  <!-- Special Message Card -->
+  <div class="message-card" id="messageCard">
+    <h2>For You, Naziya 💖</h2>
+    <p>
+      Hiii Naziya... agar tum ye dekh rhi ho to sabse pehle to mai ye kehna chahunga ki Happy Birthday.
+      I hope tumko achha lage ye. Aise offline cake to nhi bna sakta hu mai but virtual cake to bana hi skta hu tumhare liye.
+      Happiest Birthday Naziya 🎂💝
+    </p>
   </div>
 </div>
 
@@ -375,9 +453,11 @@ let introReady = false;
 setTimeout(()=>{
   introReady = true;
   const cakeWrap = document.getElementById("cakeWrap");
+  const wishHint = document.getElementById("wishHint");
+  if(wishHint) wishHint.classList.add("hide");
   cakeWrap.classList.remove("locked");
   cakeWrap.classList.add("ready");
-}, 6000); // after title+photo+cake+subtitle
+}, 6000);
 
 /* Candle */
 let blown=false;
@@ -399,7 +479,7 @@ function blowCandle(){
     card.style.display="none";
     const greet = document.getElementById("centerGreet");
     greet.classList.add("show");
-    document.getElementById("openDiaryBtn").disabled = false; // unlock button
+    document.getElementById("openDiaryBtn").disabled = false;
   },1200);
 }
 
@@ -416,7 +496,7 @@ function goToSecond(){
 }
 
 /* Diary pages */
-let current=1; const total=4;
+let current=1; const total=6;
 function showPage(n, dir){
   const oldPage=document.getElementById("page"+current);
   const newPage=document.getElementById("page"+n);
@@ -432,7 +512,7 @@ function prevPage(){ if(current>1){ showPage(current-1,"prev"); current--; } }
 /* Memory Game */
 const memoryGrid=document.getElementById("memoryGrid");
 const memoryStatus=document.getElementById("memoryStatus");
-const symbols=["🌸","🌸","💖","💖","✨","✨","💫","💫"].sort(()=>0.5-Math.random());
+const symbols=["🌸","🌸","💖","💖","✨","✨","🥺","🥺"].sort(()=>0.5-Math.random());
 let firstCard=null, lock=false, matched=0;
 
 symbols.forEach(sym=>{
@@ -451,6 +531,9 @@ symbols.forEach(sym=>{
           launchConfetti();
           document.getElementById("book").classList.add("open");
           document.getElementById("controls").classList.add("show");
+          setTimeout(()=>{
+            document.getElementById("messageCard").classList.add("show");
+          }, 800);
         }
       } else {
         lock=true;
@@ -467,5 +550,3 @@ symbols.forEach(sym=>{
 
 </body>
 </html>
-
-
